@@ -33,7 +33,7 @@ const mockRedisClient = {
   quit: quitSpy,
 };
 const mockOptions = {
-  publisher: (mockRedisClient as any),
+  publishers: [mockRedisClient as any],
   subscriber: (mockRedisClient as any),
 };
 
@@ -46,13 +46,13 @@ describe('RedisPubSub', () => {
   it('should create default ioredis clients if none were provided', done => {
     const pubSub = new RedisPubSub();
     expect(pubSub.getSubscriber()).to.be.an.instanceOf(IORedis);
-    expect(pubSub.getPublisher()).to.be.an.instanceOf(IORedis);
+    expect(pubSub.getPublishers()[0]).to.be.an.instanceOf(IORedis);
     pubSub.close();
     done();
   });
 
   it('should verify close calls pub and sub quit methods', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
 
     pubSub.close()
       .then(() => {
@@ -63,7 +63,7 @@ describe('RedisPubSub', () => {
   });
 
   it('can subscribe to specific redis channel and called when a message is published on it', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     pubSub.subscribe('Posts', message => {
       try {
         expect(message).to.equals('test');
@@ -80,7 +80,7 @@ describe('RedisPubSub', () => {
   });
 
   it('can subscribe to a redis channel pattern and called when a message is published on it', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
 
     pubSub.subscribe('Posts*', message => {
       try {
@@ -98,7 +98,7 @@ describe('RedisPubSub', () => {
   });
 
   it('can unsubscribe from specific redis channel', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     pubSub.subscribe('Posts', () => null).then(subId => {
       pubSub.unsubscribe(subId);
 
@@ -119,7 +119,7 @@ describe('RedisPubSub', () => {
   });
 
   it('cleans up correctly the memory when unsubscribing', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     Promise.all([
       pubSub.subscribe('Posts', () => null),
       pubSub.subscribe('Posts', () => null),
@@ -142,7 +142,7 @@ describe('RedisPubSub', () => {
   });
 
   it('will not unsubscribe from the redis channel if there is another subscriber on it\'s subscriber list', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     const subscriptionPromises = [
       pubSub.subscribe('Posts', () => {
         done('Not supposed to be triggered');
@@ -174,7 +174,7 @@ describe('RedisPubSub', () => {
   });
 
   it('will subscribe to redis channel only once', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     const onMessage = () => null;
     const subscriptionPromises = [
       pubSub.subscribe('Posts', onMessage),
@@ -196,7 +196,7 @@ describe('RedisPubSub', () => {
   });
 
   it('can have multiple subscribers and all will be called when a message is published to this channel', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     const onMessageSpy = spy(() => null);
     const subscriptionPromises = [
       pubSub.subscribe('Posts', onMessageSpy),
@@ -224,7 +224,7 @@ describe('RedisPubSub', () => {
   });
 
   it('can publish objects as well', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     pubSub.subscribe('Posts', message => {
       try {
         expect(message).to.have.property('comment', 'This is amazing');
@@ -254,7 +254,7 @@ describe('RedisPubSub', () => {
       return value;
     };
 
-    const pubSub = new RedisPubSub({...mockOptions, reviver: dateReviver});
+    const pubSub = new RedisPubSub({...mockOptions, reviver: dateReviver} as any);
     const validTime = new Date();
     const invalidTime = '2018-13-01T12:00:00Z';
     pubSub.subscribe('Times', message => {
@@ -281,7 +281,7 @@ describe('RedisPubSub', () => {
     const deserializer = stub();
 
     try {
-      expect(() => new RedisPubSub({...mockOptions, reviver, deserializer}))
+      expect(() => new RedisPubSub({...mockOptions, reviver, deserializer} as any))
           .to.throw("Reviver and deserializer can't be used together");
       done();
     } catch (e) {
@@ -294,7 +294,7 @@ describe('RedisPubSub', () => {
     const serializedPayload = `{ "hello": "custom" }`;
     serializer.returnWith(serializedPayload);
 
-    const pubSub = new RedisPubSub({...mockOptions, serializer });
+    const pubSub = new RedisPubSub({...mockOptions, serializer } as any);
 
     try {
       pubSub.subscribe('TOPIC', message => {
@@ -316,7 +316,7 @@ describe('RedisPubSub', () => {
     const serializer = stub();
     serializer.throwWith(new Error('Custom serialization error'));
 
-    const pubSub = new RedisPubSub({...mockOptions, serializer });
+    const pubSub = new RedisPubSub({...mockOptions, serializer } as any);
 
     try {
       pubSub.publish('TOPIC', {hello: 'world'}).then(() => {
@@ -335,7 +335,7 @@ describe('RedisPubSub', () => {
     const deserializedPayload = { hello: 'custom' };
     deserializer.returnWith(deserializedPayload);
 
-    const pubSub = new RedisPubSub({...mockOptions, deserializer });
+    const pubSub = new RedisPubSub({...mockOptions, deserializer } as any);
 
     try {
       pubSub.subscribe('TOPIC', message => {
@@ -357,7 +357,7 @@ describe('RedisPubSub', () => {
     const deserializer = stub();
     deserializer.throwWith(new Error('Custom deserialization error'));
 
-    const pubSub = new RedisPubSub({...mockOptions, deserializer });
+    const pubSub = new RedisPubSub({...mockOptions, deserializer } as any);
 
     try {
       pubSub.subscribe('TOPIC', message => {
@@ -377,7 +377,7 @@ describe('RedisPubSub', () => {
   });
 
   it('throws if you try to unsubscribe with an unknown id', () => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     return expect(() => pubSub.unsubscribe(123))
       .to.throw('There is no subscription of id "123"');
   });
@@ -386,7 +386,7 @@ describe('RedisPubSub', () => {
     const triggerTransform = (trigger, { repoName }) => `${trigger}.${repoName}`;
     const pubSub = new RedisPubSub({
       triggerTransform,
-      publisher: (mockRedisClient as any),
+      publishers: [mockRedisClient as any],
       subscriber: (mockRedisClient as any),
     });
 
@@ -399,8 +399,8 @@ describe('RedisPubSub', () => {
       }
     };
 
-    pubSub.subscribe('comments', validateMessage, { repoName: 'graphql-redis-subscriptions' }).then(async subId => {
-      await pubSub.publish('comments.graphql-redis-subscriptions', 'test');
+    pubSub.subscribe('comments', validateMessage, { repoName: 'graphql-redis-fanout-subscriptions' }).then(async subId => {
+      await pubSub.publish('comments.graphql-redis-fanout-subscriptions', 'test');
       pubSub.unsubscribe(subId);
     });
 
@@ -425,7 +425,7 @@ describe('RedisPubSub', () => {
 describe('PubSubAsyncIterator', () => {
 
   it('should expose valid asyncItrator for a specific event', () => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     const eventName = 'test';
     const iterator = pubSub.asyncIterator(eventName);
     // tslint:disable-next-line:no-unused-expression
@@ -435,7 +435,7 @@ describe('PubSubAsyncIterator', () => {
   });
 
   it('should trigger event on asyncIterator when published', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     const eventName = 'test';
     const iterator = pubSub.asyncIterator(eventName);
 
@@ -453,7 +453,7 @@ describe('PubSubAsyncIterator', () => {
   });
 
   it('should not trigger event on asyncIterator when publishing other event', async () => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     const eventName = 'test2';
     const iterator = pubSub.asyncIterator('test');
     const triggerSpy = spy(() => undefined);
@@ -464,7 +464,7 @@ describe('PubSubAsyncIterator', () => {
   });
 
   it('register to multiple events', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     const eventName = 'test2';
     const iterator = pubSub.asyncIterator(['test', 'test2']);
     const triggerSpy = spy(() => undefined);
@@ -478,7 +478,7 @@ describe('PubSubAsyncIterator', () => {
   });
 
   it('should not trigger event on asyncIterator already returned', done => {
-    const pubSub = new RedisPubSub(mockOptions);
+    const pubSub = new RedisPubSub(mockOptions as any);
     const eventName = 'test';
     const iterator = pubSub.asyncIterator<any>(eventName);
 

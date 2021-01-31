@@ -1,16 +1,16 @@
-# graphql-redis-subscriptions
+# graphql-redis-fanout-subscriptions
 
-[![Dependabot badge](https://flat.badgen.net/dependabot/davidyaha/graphql-redis-subscriptions?icon=dependabot)](https://dependabot.com/)
-[![Build Status](https://travis-ci.org/davidyaha/graphql-redis-subscriptions.svg?branch=master)](https://travis-ci.org/davidyaha/graphql-redis-subscriptions)
+[![Dependabot badge](https://flat.badgen.net/dependabot/davidyaha/graphql-redis-fanout-subscriptions?icon=dependabot)](https://dependabot.com/)
+[![Build Status](https://travis-ci.org/davidyaha/graphql-redis-fanout-subscriptions.svg?branch=master)](https://travis-ci.org/davidyaha/graphql-redis-fanout-subscriptions)
 
 This package implements the PubSubEngine Interface from the [graphql-subscriptions](https://github.com/apollographql/graphql-subscriptions) package and also the new AsyncIterator interface. 
 It allows you to connect your subscriptions manager to a Redis Pub Sub mechanism to support 
 multiple subscription manager instances.
 
 ## Installation
-At first, install the `graphql-redis-subscriptions` package: 
+At first, install the `graphql-redis-fanout-subscriptions` package: 
 ```
-npm install graphql-redis-subscriptions
+npm install graphql-redis-fanout-subscriptions
 ```
 
 As the [graphql-subscriptions](https://github.com/apollographql/graphql-subscriptions) package is declared as a peer dependency, you might receive warning about an unmet peer dependency if it's not installed already by one of your other packages. In that case you also need to install it too:
@@ -41,7 +41,7 @@ type Result {
 Now, let's create a simple `RedisPubSub` instance:
 
 ```javascript
-import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { RedisPubSub } from 'graphql-redis-fanout-subscriptions';
 const pubsub = new RedisPubSub();
 ```
 
@@ -114,7 +114,7 @@ export const resolvers = {
 The basic usage is great for development and you will be able to connect to a Redis server running on your system seamlessly. For production usage, it is recommended to send a Redis client from the using code and pass in any options you would like to use. e.g: Connection retry strategy.
 
 ```javascript
-import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { RedisPubSub } from 'graphql-redis-fanout-subscriptions';
 import * as Redis from 'ioredis';
 
 const options = {
@@ -136,7 +136,7 @@ const pubsub = new RedisPubSub({
 **Also works with your Redis Cluster**
 
 ```javascript
-import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { RedisPubSub } from 'graphql-redis-fanout-subscriptions';
 import { Cluster } from 'ioredis';
 
 const cluster = new Cluster(REDIS_NODES); // like: [{host: 'ipOrHost', port: 1234}, ...]
@@ -157,7 +157,7 @@ This means that not all objects - such as Date or Regexp objects - will deserial
 For handling such objects, you may pass your own reviver function to `JSON.parse`, for example to handle Date objects the following reviver can be used:
 
 ```javascript
-import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { RedisPubSub } from 'graphql-redis-fanout-subscriptions';
 
 const dateReviver = (key, value) => {
   const isISO8601Z = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
@@ -185,7 +185,7 @@ pubSub.subscribe('Test', message => {
 ## Old Usage (Deprecated)
 
 ```javascript
-import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { RedisPubSub } from 'graphql-redis-fanout-subscriptions';
 const pubsub = new RedisPubSub();
 const subscriptionManager = new SubscriptionManager({
   schema,
@@ -238,11 +238,11 @@ const query = `
     commentsAdded(repoName: $repoName)
   }
 `;
-const variables = {repoName: 'graphql-redis-subscriptions'};
+const variables = {repoName: 'graphql-redis-fanout-subscriptions'};
 subscriptionManager.subscribe({query, operationName: 'X', variables, callback});
 ```
 
-The subscription string that Redis will receive will be `comments.added.graphql-redis-subscriptions`.
+The subscription string that Redis will receive will be `comments.added.graphql-redis-fanout-subscriptions`.
 This subscription string is much more specific and means the the filtering required for this type of subscription is not needed anymore.
 This is one step towards lifting the load off of the GraphQL API server regarding subscriptions.
 

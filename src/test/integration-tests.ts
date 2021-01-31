@@ -130,7 +130,7 @@ describe('PubSubCluster', () => {
     const cluster = new Cluster(nodes);
     const eventKey = 'clusterEvtKey';
     const pubsub = new RedisPubSub({
-        publisher: cluster,
+        publishers: [cluster],
         subscriber: cluster,
     });
 
