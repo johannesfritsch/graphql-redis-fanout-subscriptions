@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/davidyaha/graphql-redis-fanout-subscriptions.git"
+    "url": "https://github.com/johannesfritsch/graphql-redis-fanout-subscriptions.git"
   },
   "keywords": [
     "graphql",
@@ -22,9 +22,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/davidyaha/graphql-redis-fanout-subscriptions/issues"
+    "url": "https://github.com/johannesfritsch/graphql-redis-fanout-subscriptions/issues"
   },
-  "homepage": "https://github.com/davidyaha/graphql-redis-fanout-subscriptions",
+  "homepage": "https://github.com/johannesfritsch/graphql-redis-fanout-subscriptions",
   "scripts": {
     "compile": "tsc",
     "test": "npm run coverage && npm run lint",
